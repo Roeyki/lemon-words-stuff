@@ -1,0 +1,84 @@
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: Lemon Words Stuff
+  description: A word counter server, which counts words from various sources, and reports statistics about the words' count on demend
+host: localhost:5050
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+tags:
+  - name: counter
+    description: counts words
+  - name: Statistics query
+    description: shows some statistics on the words
+paths:
+  /count:
+    post:
+      tags: 
+        - counter
+      description: Count The number of appearances a word in the input, adds it to the words statistic pool
+      produces:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          schema:
+            $ref: "#/definitions/countRequest"
+          required: true
+      responses:
+        200:
+          description: success
+        400:
+          description: invalid input
+        503 : 
+          description: server is not yet initialized
+  /query:
+    get:
+      tags: 
+       - Statistics query 
+      description: Query for a specific word's statistics
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          description: The word to be queried
+          name: word
+          type: string
+          example: name
+      responses:
+        200:
+          description: Succeeded
+          schema:
+            $ref: "#/definitions/queryResponse"
+        400:
+          description: invalid input
+        503 : 
+          description: server is not yet initialized
+
+definitions:
+  countRequest:
+    type: object
+    properties:
+      origin:
+        title: The content's origin 
+        description: What is the content value's meaning ? 
+        example: file
+        type: string
+        enum:
+          - text
+          - url
+          - file
+      content:
+        description: The text / text's origin (according to the origin above)
+        example: src/serverAssets/exampleDataSets/exampleFile1.txt
+        type: string
+  queryResponse:
+    description: Get the number of times we have seen this word until this point (in all sessions)
+    type: number
+    additionalProperties:
+      type: number
+    example: 16
